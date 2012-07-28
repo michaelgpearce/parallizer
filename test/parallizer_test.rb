@@ -21,6 +21,21 @@ class ParallizerTest < Test::Unit::TestCase
     end
   end
   
+  context ".add" do
+    setup do
+      @client = TestObject.new
+      @parallizer = Parallizer.new(@client)
+    end
+    
+    execute do
+      @parallizer.add.a_method('arg')
+    end
+    
+    should "add call to calls" do
+      assert_equal [:a_method, 'arg'], @parallizer.calls.first
+    end
+  end
+  
   context ".add_call" do
     setup do
       @client = TestObject.new

@@ -1,6 +1,7 @@
 require 'set'
 require 'work_queue'
 require 'parallizer/proxy'
+require 'parallizer/method_call_notifier'
 
 class Parallizer
   attr_accessor :calls, :client
@@ -8,6 +9,12 @@ class Parallizer
   def initialize(client)
     self.client = client
     self.calls = Set.new
+  end
+  
+  def add
+    MethodCallNotifier.new do |*args|
+      self.calls.add(args)
+    end
   end
   
   def add_call(method_name, *args)
