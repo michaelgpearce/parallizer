@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "parallizer"
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Michael Pearce"]
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/parallizer.rb",
+    "lib/parallizer/method_call_notifier.rb",
     "lib/parallizer/proxy.rb",
     "parallizer.gemspec",
     "test/parallizer/proxy_test.rb",
