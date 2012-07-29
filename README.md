@@ -46,7 +46,7 @@ Additional calls in your application logic will not result in an additional call
 
 If there is an additional method on your service that was not parallized, you can still call it.
 
-    puts search_service.get_foobar_search_result_page
+    puts search_service.get_foobar_search_result_page # does a Net::HTTP.get call
 
 ### Parallizing methods with parameters
 
