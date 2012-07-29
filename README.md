@@ -16,11 +16,11 @@ Here's an example service class.
 require 'net/http'
 
 class SearchService
-  def get_foo_search_result_page
+  def search_result_for_foo
     Net::HTTP.get('www.google.com', '/?q=foo')
   end
   
-  def get_bar_search_result_page
+  def search_result_for_bar
     Net::HTTP.get('www.google.com', '/?q=foo')
   end
 end
@@ -32,30 +32,30 @@ Now create a Parallizer for that service and add all of the methods you intend t
 require 'parallizer'
 
 parallizer = Parallizer.new(SearchService.new)
-parallizer.add.get_foo_search_result_page
-parallizer.add.get_bar_search_result_page
+parallizer.add.search_result_for_foo
+parallizer.add.search_result_for_bar
 search_service = parallizer.execute
 ```
 
 Now use that service proxy in your application logic.
 
 ```ruby
-puts search_service.get_foo_search_result_page
-puts search_service.get_foo_search_result_page
+puts search_service.search_result_for_foo
+puts search_service.search_result_for_bar
 ```
 
 Additional calls in your application logic will not result in an additional call to the underlying service.
 
 ```ruby
 # Called twice, but no extra service call. (Be careful not to mutate the returned object!)
-puts search_service.get_foo_search_result_page
-puts search_service.get_foo_search_result_page
+puts search_service.search_result_for_foo
+puts search_service.search_result_for_foo
 ```
 
 If there is an additional method on your service that was not parallized, you can still call it.
 
 ```ruby
-puts search_service.get_foobar_search_result_page # does a Net::HTTP.get call
+puts search_service.search_result_for_foobar # does a Net::HTTP.get call
 ```
 
 ### Parallizing methods with parameters
