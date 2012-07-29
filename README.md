@@ -52,7 +52,7 @@ puts search_service.search_result_for_foo
 puts search_service.search_result_for_foo
 ```
 
-If there is an additional method on your service that was not parallized, you can still call it.
+If there are additional methods on your service that were not parallized, you can still call them.
 
 ```ruby
 puts search_service.search_result_for_foobar # does a Net::HTTP.get call
