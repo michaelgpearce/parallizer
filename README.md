@@ -1,6 +1,6 @@
 # Parallizer - Execute your service layer in parallel
 
-Parallizer lets you execute slow and expensive methods on an object in parallel threads then later call those methods without a performance hit. Its primarily intended to be used by a client using service libraries that make multiple network calls, but can potentially have other uses.
+Parallizer lets you execute slow and expensive methods on an object in parallel threads then later call those methods without a performance hit. If you make lots of web service calls, this can give a considerable performance boost.
 
 ## Installation
 
@@ -10,7 +10,7 @@ Parallizer lets you execute slow and expensive methods on an object in parallel 
 
 ### Parallizing an object
 
-An example service class.
+Here's an example service class.
 
     require 'net/http'
     
