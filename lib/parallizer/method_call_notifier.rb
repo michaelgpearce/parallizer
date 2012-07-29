@@ -9,6 +9,7 @@ class Parallizer
     
     def method_missing(name, *arguments, &block)
       @callback.call(name, *arguments)
+      self
     end
   end
 end
