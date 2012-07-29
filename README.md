@@ -99,7 +99,7 @@ Use the service proxy.
 
 # Credits
 
-Parallizer is maintained by [Michael Pearce](http://github.com/michaelgpearce) and is funded by [BookRenter.com](http://www.bookrenter.com "BookRenter.com").
+[Parallizer](https://github.com/michaelgpearce/parallizer) is maintained by [Michael Pearce](http://github.com/michaelgpearce) and is funded by [BookRenter.com](http://www.bookrenter.com "BookRenter.com").
 
 ![BookRenter.com Logo](http://assets0.bookrenter.com/images/header/bookrenter_logo.gif "BookRenter.com")
 
