@@ -24,7 +24,7 @@ Here's an example service class.
         end
     end
     
-Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel and return a proxy service that has the stored results of the method calls.
+Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel and return a service proxy that has the stored results of the method calls.
 
     require 'parallizer'
     
