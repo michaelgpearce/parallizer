@@ -10,7 +10,7 @@ Parallizer executes service methods in parallel, stores the method results, then
 
 ### Parallizing a service object
 
-Here's an example service class.
+Here's an example service.
 
 ```ruby
 require 'net/http'
@@ -24,6 +24,8 @@ class SearchService
     Net::HTTP.get('www.google.com', '/?q=foo')
   end
 end
+
+$search_service = SearchService.new
 ```
 
 Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel and return a service proxy that has the stored results of the method calls.
@@ -31,7 +33,7 @@ Now create a Parallizer for that service and add all of the methods you intend t
 ```ruby
 require 'parallizer'
 
-parallizer = Parallizer.new(SearchService.new)
+parallizer = Parallizer.new($search_service)
 parallizer.add.search_result_for_foo
 parallizer.add.search_result_for_bar
 search_service = parallizer.execute
@@ -71,6 +73,8 @@ class SearchService
     Net::HTTP.get('www.google.com', "/?q=#{CGI.escape(search_term)}")
   end
 end
+
+$search_service = SearchService.new
 ```
 
 The parallel execution and proxy creation.
@@ -78,7 +82,7 @@ The parallel execution and proxy creation.
 ```ruby
 require 'parallizer'
 
-parallizer = Parallizer.new(SearchService.new)
+parallizer = Parallizer.new($search_service)
 parallizer.add.search_result('foo')
 parallizer.add.search_result('bar')
 search_service = parallizer.execute
