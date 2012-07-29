@@ -16,13 +16,13 @@ Here's an example service class.
 require 'net/http'
 
 class SearchService
-    def get_foo_search_result_page
-        Net::HTTP.get('www.google.com', '/?q=foo')
-    end
-    
-    def get_bar_search_result_page
-        Net::HTTP.get('www.google.com', '/?q=foo')
-    end
+  def get_foo_search_result_page
+    Net::HTTP.get('www.google.com', '/?q=foo')
+  end
+  
+  def get_bar_search_result_page
+    Net::HTTP.get('www.google.com', '/?q=foo')
+  end
 end
 ```
 
@@ -67,9 +67,9 @@ require 'net/http'
 require 'cgi'
 
 class SearchService
-    def search_result(search_term)
-        Net::HTTP.get('www.google.com', "/?q=#{CGI.escape(search_term)}")
-    end
+  def search_result(search_term)
+    Net::HTTP.get('www.google.com', "/?q=#{CGI.escape(search_term)}")
+  end
 end
 ```
 
