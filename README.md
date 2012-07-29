@@ -8,7 +8,7 @@ Parallizer lets you execute slow and expensive methods on an object in parallel 
 
 ## Examples
 
-### Parallizing an object
+### Parallizing a service object
 
 Here's an example service class.
 
