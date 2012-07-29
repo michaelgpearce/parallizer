@@ -83,12 +83,6 @@ You can even parallize class methods.
 
     require 'net/http'
     require 'parallizer'
-    require 'parallizer'
-
-    parallizer = Parallizer.new(SearchService.new)
-    parallizer.add.search_result('foo')
-    parallizer.add.search_result('bar')
-    search_service = parallizer.execute
 
     parallizer = Parallizer.new(Net::HTTP)
     parallizer.add.get('www.google.com', '/?q=foo')
