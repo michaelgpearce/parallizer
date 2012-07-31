@@ -41,3 +41,5 @@ tmtags
 
 # For vim:
 *.swp
+
+.rvmrc
