@@ -65,7 +65,7 @@ puts search_service.top_urls_for_foo
 If there are additional methods on your service that were not parallized, you can still call them.
 
 ```ruby
-puts search_service.top_urls_for_foobar # does a Net::HTTP.get call
+puts search_service.top_urls_for_foobar # makes an HTTP request and parses result
 ```
 
 ### Parallizing methods with parameters
@@ -107,7 +107,7 @@ Using the service proxy in your application logic.
 ```ruby
 puts search_service.top_urls('foo') # returns stored value
 puts search_service.top_urls('bar') # returns stored value
-puts search_service.top_urls('foobar') # does a Net::HTTP.get call
+puts search_service.top_urls('foobar') # makes an HTTP request and parses result
 ```
 
 
@@ -131,7 +131,7 @@ Use the service proxy.
 # use your service proxy
 http_service.get('www.google.com', '/search?q=foo') # returns stored value
 http_service.get('www.google.com', '/search?q=bar') # returns stored value
-http_service.get('www.google.com', '/search?q=foobar') # does a Net::HTTP.get call
+http_service.get('www.google.com', '/search?q=foobar') # makes an HTTP request and parses result
 ```
 
 
