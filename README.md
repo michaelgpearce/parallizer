@@ -46,7 +46,8 @@ parallizer.add.top_urls_for_bar
 search_service = parallizer.execute
 ```
 
-Now use that service proxy in your application logic.
+Now use that service proxy in your application logic. Calls to these methods will not result in Net::HTTP.get call
+and will not parse HTML. That was already done in parallel.
 
 ```ruby
 puts search_service.top_urls_for_foo
