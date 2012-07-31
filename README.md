@@ -13,7 +13,6 @@ Parallizer executes service methods in parallel, stores the method results, then
 Here's an example service.
 
 ```ruby
-require 'rubygems'
 require 'net/http'
 require 'nokogiri'
 
@@ -39,7 +38,6 @@ $search_service = SearchService.new
 Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel and return a service proxy that has the stored results of the method calls.
 
 ```ruby
-require 'rubygems'
 require 'parallizer'
 
 parallizer = Parallizer.new($search_service)
@@ -74,7 +72,6 @@ puts search_service.top_urls_for_foobar # does a Net::HTTP.get call
 Parallizing also works on service methods with parameters.
 
 ```ruby
-require 'rubygems'
 require 'net/http'
 require 'nokogiri'
 
@@ -96,7 +93,6 @@ $search_service = SearchService.new
 The parallel execution and proxy creation.
 
 ```ruby
-require 'rubygems'
 require 'parallizer'
 
 parallizer = Parallizer.new($search_service)
@@ -119,7 +115,6 @@ puts search_service.top_urls('foobar') # does a Net::HTTP.get call
 You can even parallize class methods.
 
 ```ruby
-require 'rubygems'
 require 'net/http'
 require 'parallizer'
 
