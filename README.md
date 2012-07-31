@@ -66,7 +66,7 @@ puts search_service.top_urls_for_foo
 If there are additional methods on your service that were not parallized, you can still call them.
 
 ```ruby
-puts search_service.top_urls_forbar # does a Net::HTTP.get call
+puts search_service.top_urls_for_foobar # does a Net::HTTP.get call
 ```
 
 ### Parallizing methods with parameters
