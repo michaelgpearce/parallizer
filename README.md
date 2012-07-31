@@ -1,6 +1,6 @@
 # Parallizer - Execute your service layer in parallel
 
-Parallizer executes service methods in parallel, stores the method results, then creates a proxy with those results for your service. Your application then uses the short-lived service proxy (think of a single request for a web application) and executes your methods without again calling the underlying implementation. For applications that make considerable use of web service calls, Parallizer can give you a considerable performance boost.
+Parallizer executes service methods in parallel, stores the method results, then creates a proxy of your service with those results. Your application then uses the short-lived service proxy (think of a single request for a web application) and executes your methods without again calling the underlying implementation. For applications that make considerable use of web service calls, Parallizer can give you a considerable performance boost.
 
 ## Installation
 
