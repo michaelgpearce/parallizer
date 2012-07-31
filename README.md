@@ -13,6 +13,7 @@ Parallizer executes service methods in parallel, stores the method results, then
 Here's an example service.
 
 ```ruby
+require 'rubygems'
 require 'net/http'
 require 'nokogiri'
 
@@ -22,7 +23,7 @@ class SearchService
   end
   
   def top_urls_for_bar
-    parse_search_result_for_urls(Net::HTTP.get('www.google.com', '/search?q=foo'))
+    parse_search_result_for_urls(Net::HTTP.get('www.google.com', '/search?q=bar'))
   end
   
   private
@@ -46,7 +47,7 @@ parallizer.add.top_urls_for_bar
 search_service = parallizer.execute
 ```
 
-Now use that service proxy in your application logic. Calls to these methods will not HTTP request
+Now use that service proxy in your application logic. Calls to these methods will not make an HTTP request
 and will not parse HTML. That was already done by the parallel worker threads.
 
 ```ruby
