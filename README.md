@@ -76,7 +76,6 @@ Parallizing also works on service methods with parameters.
 ```ruby
 require 'rubygems'
 require 'net/http'
-require 'cgi'
 require 'nokogiri'
 
 class SearchService
