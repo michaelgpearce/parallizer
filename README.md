@@ -35,7 +35,7 @@ end
 $search_service = SearchService.new
 ```
 
-Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel and return a service proxy that has the stored results of the method calls.
+Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel worker threads and return a service proxy that has the stored results of the method calls.
 
 ```ruby
 require 'parallizer'
@@ -46,8 +46,8 @@ parallizer.add.top_urls_for_bar
 search_service = parallizer.execute
 ```
 
-Now use that service proxy in your application logic. Calls to these methods will not result in Net::HTTP.get call
-and will not parse HTML. That was already done in parallel.
+Now use that service proxy in your application logic. Calls to these methods will not result in calls to Net::HTTP.get
+and will not parse HTML. That was already done by the parallel worker threads.
 
 ```ruby
 puts search_service.top_urls_for_foo
