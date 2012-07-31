@@ -75,6 +75,7 @@ Parallizing also works on service methods with parameters.
 ```ruby
 require 'net/http'
 require 'nokogiri'
+require 'cgi'
 
 class SearchService
   def top_urls(search_term)
