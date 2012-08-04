@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'helper'
 
 class Parallizer::MethodCallNotifierTest < Test::Unit::TestCase
   context ".method_missing" do

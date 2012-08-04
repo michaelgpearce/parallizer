@@ -1,6 +1,6 @@
 # Parallizer - Execute your service layer in parallel
 
-Parallizer executes service methods in parallel, stores the method results, then creates a proxy of your service with those results. Your application then uses the short-lived service proxy (think of a single request for a web application) and executes your methods without again calling the underlying implementation. For applications that make considerable use of web service calls, Parallizer can give you a considerable performance boost.
+Parallizer executes service methods in parallel, stores the method results, and creates a proxy of your service with those results. Your application then uses the short-lived service proxy (think of a single request for a web application) and calls your methods without again executing the underlying implementation. For applications that make considerable use of web service calls, Parallizer can give you a considerable performance boost.
 
 ## Installation
 
@@ -36,7 +36,7 @@ end
 $search_service = SearchService.new
 ```
 
-Now create a Parallizer for that service and add all of the methods you intend to call. Then execute the service methods in parallel worker threads and return a service proxy that has the stored results of the method calls.
+Now create a Parallizer for that service and add all of the methods you intend to call. This begins the execution of the service methods in worker threads. Then create a service proxy that uses the stored results of the method calls.
 
 ```ruby
 require 'parallizer'
@@ -44,11 +44,11 @@ require 'parallizer'
 parallizer = Parallizer.new($search_service)
 parallizer.add.top_urls_for_foo
 parallizer.add.top_urls_for_bar
-search_service = parallizer.execute
+search_service = parallizer.create_proxy
 ```
 
 Now use that service proxy in your application logic. Calls to these methods will not make an HTTP request
-and will not parse HTML. That was already done by the parallel worker threads.
+and will not parse HTML. That was done by the parallel worker threads.
 
 ```ruby
 puts search_service.top_urls_for_foo
@@ -101,7 +101,7 @@ require 'parallizer'
 parallizer = Parallizer.new($search_service)
 parallizer.add.top_urls('foo')
 parallizer.add.top_urls('bar')
-search_service = parallizer.execute
+search_service = parallizer.create_proxy
 ```
 
 Using the service proxy in your application logic.
@@ -124,7 +124,7 @@ require 'parallizer'
 parallizer = Parallizer.new(Net::HTTP)
 parallizer.add.get('www.google.com', '/?q=foo')
 parallizer.add.get('www.google.com', '/?q=bar')
-http_service = parallizer.execute
+http_service = parallizer.create_proxy
 ```
 
 Use the service proxy.

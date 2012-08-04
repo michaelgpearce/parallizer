@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'helper'
 
 class ParallizerTest < Test::Unit::TestCase
   class TestObject
@@ -43,7 +43,17 @@ class ParallizerTest < Test::Unit::TestCase
     end
     
     execute do
-      @parallizer.add_call(@method, 'arg')
+      @parallizer.add_call(@method, 'arg') rescue $!
+    end
+    
+    context "with proxy already created" do
+      setup do
+        @parallizer.instance_variable_set(:@proxy, mock('proxy'))
+      end
+      
+      should "raise ArgumentError" do
+        assert_equal ArgumentError, @execute_result.class
+      end
     end
     
     context "with string method name added" do
@@ -67,14 +77,14 @@ class ParallizerTest < Test::Unit::TestCase
     end
   end
   
-  context ".execute" do
+  context ".create_proxy" do
     setup do
       @client = TestObject.new
       @parallizer = Parallizer.new(@client)
     end
     
     execute do
-      @proxy = @parallizer.execute
+      @proxy = @parallizer.create_proxy rescue $!
     end
     
     context "with existing method on client" do
@@ -90,30 +100,16 @@ class ParallizerTest < Test::Unit::TestCase
         assert_equal Thread.current, @proxy.another_method
       end
     end
-  end
-  
-  context ".execute_all" do
-    setup do
-      @client1 = TestObject.new
-      @parallizer1 = Parallizer.new(@client1)
-      @parallizer1.add_call(:a_method, 'arg')
-      @client2 = AnotherTestObject.new
-      @parallizer2 = Parallizer.new(@client2)
-      @parallizer2.add_call(:a_method)
+    
+    context "with proxy already created" do
+      setup do
+        @parallizer.instance_variable_set(:@proxy, mock('proxy'))
+      end
+      
+      should "raise ArgumentError" do
+        assert_equal ArgumentError, @execute_result.class
+      end
     end
-
-    execute do
-      @proxy1, @proxy2 = Parallizer.execute_all(@parallizer1, @parallizer2)
-    end
-
-    should "execute methods with add_call in a separate thread" do
-      assert_not_equal Thread.current, @proxy1.a_method('arg')
-      assert_not_equal Thread.current, @proxy2.a_method
-    end
-
-    should "execute methods not added with add_call in current thread" do
-      assert_equal Thread.current, @proxy1.another_method
-      assert_equal Thread.current, @proxy2.another_method
-    end
+    
   end
 end

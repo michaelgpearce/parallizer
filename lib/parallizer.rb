@@ -1,56 +1,60 @@
-require 'set'
 require 'work_queue'
 require 'parallizer/proxy'
 require 'parallizer/method_call_notifier'
 
 class Parallizer
-  attr_accessor :calls, :client
+  attr_reader :calls, :call_infos, :client, :proxy
   
   def initialize(client)
-    self.client = client
-    self.calls = Set.new
+    @client = client
+    @call_infos = {}
   end
   
   def add
     MethodCallNotifier.new do |*args|
-      self.calls.add(args)
+      add_call(*args)
     end
+  end
+  
+  def calls
+    @call_infos.keys
   end
   
   def add_call(method_name, *args)
-    calls.add([method_name.to_sym, *args])
-  end
-  
-  def execute
-    Parallizer.execute_all(self).first
-  end
-  
-  def self.work_queue
-    # TODO: share the work queue among calling threads
-    Thread.current[:parallizer_work_queue] ||= WorkQueue.new(10)
-  end
-  
-  def self.execute_all(*parallizers)
-    parallizers_execution_results = {}
-    parallizers.each do |parallizer|
-      execution_results = {}
-      parallizers_execution_results[parallizer] = execution_results
-      
-      parallizer.calls.each do |name_and_args|
-        Parallizer.work_queue.enqueue_b do
-          begin
-            execution_results[name_and_args] = {:result => parallizer.client.send(*name_and_args)}
-          rescue Exception => e
-            execution_results[name_and_args] = {:exception => e}
-          end
+    raise ArgumentError, "Cannot add calls after proxy has been generated" if @proxy
+    
+    method_name_and_args = [method_name.to_sym, *args]
+    
+    call_info = {
+      :complete? => false,
+      :result => nil,
+      :exception => nil,
+      :condition_variable => ConditionVariable.new,
+      :mutex => Mutex.new
+    }
+    call_infos[method_name_and_args] = call_info
+    
+    Parallizer.work_queue.enqueue_b do
+      call_info[:mutex].synchronize do
+        begin
+          call_info[:result] = client.send(*method_name_and_args)
+        rescue Exception => e
+          call_info[:exception] = e
+        ensure
+          call_info[:complete?] = true
+          call_info[:condition_variable].signal
         end
       end
     end
+  end
+  
+  def create_proxy
+    raise ArgumentError, "Cannot create another proxy" if @proxy
     
-    Parallizer.work_queue.join
-
-    return parallizers_execution_results.collect do |parallizer, execution_results|
-      Parallizer::Proxy.new(parallizer.client, execution_results)
-    end
+    Parallizer::Proxy.new(client, call_infos)
+  end
+  
+  def self.work_queue
+    @parallizer_work_queue ||= WorkQueue.new(10)
   end
 end

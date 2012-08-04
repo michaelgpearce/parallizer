@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'helper'
 
 class Parallizer::ProxyTest < Test::Unit::TestCase
   DEFAULT_RETURN_VALUE = "return value"
@@ -12,53 +12,82 @@ class Parallizer::ProxyTest < Test::Unit::TestCase
   context ".method_missing" do
     setup do
       @client = TestObject.new
+      @call_key = []
+      @call_info = {:result => nil, :exception => nil, :complete? => true,
+        :condition_variable => ConditionVariable.new, :mutex => Mutex.new }
+    end
+    
+    execute do
+      call_infos = { @call_key => @call_info }
+      proxy = Parallizer::Proxy.new(@client, call_infos)
+      proxy.send(*@call_key) rescue $!
     end
     
     context "with method that exists on client" do
-      context "with method and arg in execute results" do
+      context "with method and arg call info" do
         setup do
-          @method_result = "some value"
-          @method_arg = "some arg"
-          @execution_results = {[:a_method, @method_arg] => {:result => @method_result}}
+          @call_key += [:a_method, "some value"]
         end
-
-        should "return value from execution_results" do
-          assert_equal @method_result, Parallizer::Proxy.new(@client, @execution_results).a_method(@method_arg)
-        end
-
-        context "with exception in execute results" do
+        
+        context "with not complete?" do
           setup do
-            @execution_results = {[:a_method, @method_arg] => {:exception => Exception.new("an exception")}}
+            @call_info[:complete?] = false
+            @call_info[:condition_variable].expects(:wait).with(@call_info[:mutex])
+            @call_info[:result] = 'this is a value'
           end
           
-          should "raise exception" do
-            assert_raises Exception, "an exception" do
-              Parallizer::Proxy.new(@client, @execution_results).a_method(@method_arg)
+          should do
+            assert_equal @call_info[:result], @execute_result
+          end
+        end
+        
+        context "with complete? call info" do
+          setup do
+            @call_info[:complete?] = true
+          end
+          
+          context "with an exception" do
+            setup do
+              @call_info[:exception] = StandardError.new('An Exception')
+            end
+            
+            should "raise exception" do
+              assert_equal @call_info[:exception], @execute_result
+            end
+          end
+          
+          context "with a result" do
+            setup do
+              @call_info[:result] = "a result"
+            end
+            
+            should "return result" do
+              assert_equal @call_info[:result], @execute_result
             end
           end
         end
       end
       
-      context "with method and arg not in execute result" do
+      context "with no method and arg not in execute result" do
         setup do
-          @execution_results = {[:a_method, :unknown] => "unknown"}
+          @call_key += [:a_method, "some parameter"]
+          @call_info = nil
         end
-
+        
         should "return value from client object" do
-          assert_equal DEFAULT_RETURN_VALUE, Parallizer::Proxy.new(@client, @execution_results).a_method(:not_unknown)
+          assert_equal DEFAULT_RETURN_VALUE, @execute_result
         end
       end
     end
     
     context "with method that does not exist on client" do
       setup do
-        @execution_results = {[:a_method, @method_arg] => {:result => @method_result}}
+        @call_key += [:unknown_method, "some parameter"]
+        @call_info = nil
       end
       
       should "raise exception" do
-        assert_raises NoMethodError, "an exception" do
-          Parallizer::Proxy.new(@client, @execution_results).unknown_method()
-        end
+        assert_equal NoMethodError, @execute_result.class
       end
     end
   end
@@ -66,8 +95,10 @@ class Parallizer::ProxyTest < Test::Unit::TestCase
   context ".respond_to?" do
     setup do
       client = TestObject.new
-      execution_results = {[:a_method, 'valid argument'] => {:result => 'valid result'}}
-      @proxy = Parallizer::Proxy.new(client, execution_results)
+      call_key = [:a_method, 'valid argument']
+      call_info = {:result => nil, :exception => nil, :complete? => true,
+        :condition_variable => ConditionVariable.new, :mutex => Mutex.new }
+      @proxy = Parallizer::Proxy.new(client, { call_key => call_info })
     end
     
     should "respond to proxy method as symbol" do
