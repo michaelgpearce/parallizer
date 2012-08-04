@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "parallizer"
-  s.version = "0.0.4"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Michael Pearce"]
-  s.date = "2012-07-30"
+  s.date = "2012-08-04"
   s.description = "Execute your service layer in parallel."
   s.email = "michael.pearce@bookrenter.com"
   s.extra_rdoc_files = [
@@ -27,10 +27,10 @@ Gem::Specification.new do |s|
     "lib/parallizer/method_call_notifier.rb",
     "lib/parallizer/proxy.rb",
     "parallizer.gemspec",
+    "test/helper.rb",
     "test/parallizer/method_call_notifier_test.rb",
     "test/parallizer/proxy_test.rb",
-    "test/parallizer_test.rb",
-    "test/test_helper.rb"
+    "test/parallizer_test.rb"
   ]
   s.homepage = "http://github.com/michaelgpearce/parallizer"
   s.licenses = ["MIT"]
