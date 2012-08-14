@@ -49,10 +49,26 @@ class Parallizer::ProxyTest < Test::Unit::TestCase
           context "with an exception" do
             setup do
               @call_info[:exception] = StandardError.new('An Exception')
+              @call_info[:exception].set_backtrace(["/tmp/foo.rb:123:in `in a_worker_thread_method'"])
             end
             
+            execute do
+              def a_calling_thread_method
+                call_infos = { @call_key => @call_info }
+                proxy = Parallizer::Proxy.new(@client, call_infos)
+                proxy.send(*@call_key) rescue $!
+              end
+              a_calling_thread_method
+            end
+
             should "raise exception" do
-              assert_equal @call_info[:exception], @execute_result
+              assert_equal @call_info[:exception].class, @execute_result.class
+              assert_equal @call_info[:exception].message, @execute_result.message
+            end
+            
+            should "append backtrace of current call" do
+              assert @execute_result.backtrace.grep /a_worker_thread_method/
+              assert @execute_result.backtrace.grep /a_calling_thread_method/
             end
           end
           

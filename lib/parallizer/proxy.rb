@@ -19,7 +19,12 @@ class Parallizer
           end
           # we now have our result from the worker thread
           
-          raise call_info[:exception] if call_info[:exception]
+          if call_info[:exception]
+            # add the current call stack to the exception backtrace
+            exception = call_info[:exception].clone
+            exception.set_backtrace((call_info[:exception].backtrace || []) + caller)
+            raise exception
+          end
           
           value = call_info[:result]
         end
