@@ -110,6 +110,43 @@ class ParallizerTest < Test::Unit::TestCase
         assert_equal ArgumentError, @execute_result.class
       end
     end
+  end
+  
+  context "with retries" do
+    setup do
+      @retries = 3
+      @client = stub('a client')
+      @method = :a_sometimes_failing_method
+    end
     
+    execute do
+      parallizer = Parallizer.new(@client, :retries => @retries)
+      parallizer.add_call(@method)
+      proxy = parallizer.create_proxy
+      proxy.send(@method) rescue $!
+    end
+    
+    context "with success on last retry" do
+      setup do
+        # NOTE: added reverse order
+        @client.expects(@method).returns('success')
+        @retries.times { @client.expects(@method).raises('an error') }
+      end
+      
+      should "return successful method response" do
+        assert_equal 'success', @execute_result
+      end
+    end
+    
+    
+    context "with failures greater than retries" do
+      setup do
+        (@retries + 1).times { @client.expects(@method).raises('an error') }
+      end
+      
+      should "return successful method response" do
+        assert_equal 'an error', @execute_result.message
+      end
+    end
   end
 end

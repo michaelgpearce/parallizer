@@ -137,6 +137,22 @@ http_service.get('www.google.com', '/search?q=foobar') # makes an HTTP request a
 ```
 
 
+### Service Method Retries
+
+Parallize also allows you to retry methods that fail (any exception raised is considered a failure).
+
+```ruby
+require 'net/http'
+require 'parallizer'
+
+parallizer = Parallizer.new(Net::HTTP, :retries => 3)
+parallizer.add.get('www.google.com', '/?q=foo')
+http_service = parallizer.create_proxy
+
+http_service.get('www.google.com', '/?q=foo') # Will be called up to 4 times
+```
+
+
 # Credits
 
 [Parallizer](https://github.com/michaelgpearce/parallizer) is maintained by [Michael Pearce](http://github.com/michaelgpearce) and is funded by [Rafter](http://www.rafter.com "Rafter").

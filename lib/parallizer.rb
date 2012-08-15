@@ -3,10 +3,11 @@ require 'parallizer/proxy'
 require 'parallizer/method_call_notifier'
 
 class Parallizer
-  attr_reader :calls, :call_infos, :client, :proxy
+  attr_reader :calls, :call_infos, :client, :proxy, :options
   
-  def initialize(client)
+  def initialize(client, options = {})
     @client = client
+    @options = {:retries => 0}.merge(options)
     @call_infos = {}
   end
   
@@ -30,22 +31,12 @@ class Parallizer
       :result => nil,
       :exception => nil,
       :condition_variable => ConditionVariable.new,
-      :mutex => Mutex.new
+      :mutex => Mutex.new,
+      :retries => options[:retries]
     }
     call_infos[method_name_and_args] = call_info
     
-    Parallizer.work_queue.enqueue_b do
-      call_info[:mutex].synchronize do
-        begin
-          call_info[:result] = client.send(*method_name_and_args)
-        rescue Exception => e
-          call_info[:exception] = e
-        ensure
-          call_info[:complete?] = true
-          call_info[:condition_variable].signal
-        end
-      end
-    end
+    enqueue_call_info(call_info, method_name_and_args)
   end
   
   def create_proxy
@@ -56,5 +47,28 @@ class Parallizer
   
   def self.work_queue
     @parallizer_work_queue ||= WorkQueue.new(10)
+  end
+  
+  private
+  
+  def enqueue_call_info(call_info, method_name_and_args)
+    Parallizer.work_queue.enqueue_b do
+      call_info[:mutex].synchronize do
+        begin
+          (call_info[:retries] + 1).times do
+            begin
+              call_info[:exception] = nil # reset exception before each send attempt
+              call_info[:result] = client.send(*method_name_and_args)
+              break # success
+            rescue Exception => e
+              call_info[:exception] = e
+            end
+          end
+        ensure
+          call_info[:complete?] = true
+          call_info[:condition_variable].signal
+        end
+      end
+    end
   end
 end
