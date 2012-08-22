@@ -1,6 +1,6 @@
-require 'helper'
+require 'spec_helper'
 
-class ParallizerTest < Test::Unit::TestCase
+describe Parallizer do
   class TestObject
     def a_method(arg)
       Thread.current
@@ -21,8 +21,8 @@ class ParallizerTest < Test::Unit::TestCase
     end
   end
   
-  context ".add" do
-    setup do
+  describe "#add" do
+    before do
       @client = TestObject.new
       @parallizer = Parallizer.new(@client)
     end
@@ -31,13 +31,13 @@ class ParallizerTest < Test::Unit::TestCase
       @parallizer.add.a_method('arg')
     end
     
-    should "add call to calls" do
-      assert_equal [:a_method, 'arg'], @parallizer.calls.first
+    it "should add call to calls" do
+      @parallizer.calls.first.should == [:a_method, 'arg']
     end
   end
   
-  context ".add_call" do
-    setup do
+  describe "#add_call" do
+    before do
       @client = TestObject.new
       @parallizer = Parallizer.new(@client)
     end
@@ -47,38 +47,38 @@ class ParallizerTest < Test::Unit::TestCase
     end
     
     context "with proxy already created" do
-      setup do
-        @parallizer.instance_variable_set(:@proxy, mock('proxy'))
+      before do
+        @parallizer.instance_variable_set(:@proxy, stub('a client'))
       end
       
-      should "raise ArgumentError" do
-        assert_equal ArgumentError, @execute_result.class
+      it "should raise ArgumentError" do
+        @execute_result.class.should == ArgumentError
       end
     end
     
     context "with string method name added" do
-      setup do
+      before do
         @method = 'a_method'
       end
       
-      should "add call to calls" do
-        assert_equal [:a_method, 'arg'], @parallizer.calls.first
+      it "should add call to calls" do
+        @parallizer.calls.first.should == [:a_method, 'arg']
       end
     end
     
     context "with symbol method name" do
-      setup do
+      before do
         @method = 'a_method'
       end
       
-      should "add call to calls" do
-        assert_equal [:a_method, 'arg'], @parallizer.calls.first
+      it "should add call to calls" do
+        @parallizer.calls.first.should == [:a_method, 'arg']
       end
     end
   end
   
-  context ".create_proxy" do
-    setup do
+  describe "#create_proxy" do
+    before do
       @client = TestObject.new
       @parallizer = Parallizer.new(@client)
     end
@@ -88,32 +88,32 @@ class ParallizerTest < Test::Unit::TestCase
     end
     
     context "with existing method on client" do
-      setup do
+      before do
         @parallizer.add_call(:a_method, 'arg')
       end
       
-      should "execute method with add_call in a separate thread" do
-        assert_not_equal Thread.current, @proxy.a_method('arg')
+      it "should execute method with add_call in a separate thread" do
+        @proxy.a_method('arg').should_not == Thread.current
       end
       
-      should "execute method not added with add_call in current thread" do
-        assert_equal Thread.current, @proxy.another_method
+      it "should execute method not added with add_call in current thread" do
+        @proxy.another_method.should == Thread.current
       end
     end
     
     context "with proxy already created" do
-      setup do
-        @parallizer.instance_variable_set(:@proxy, mock('proxy'))
+      before do
+        @parallizer.instance_variable_set(:@proxy, stub('a client'))
       end
       
-      should "raise ArgumentError" do
-        assert_equal ArgumentError, @execute_result.class
+      it "should raise ArgumentError" do
+        @execute_result.class.should == ArgumentError
       end
     end
   end
   
   context "with retries" do
-    setup do
+    before do
       @retries = 3
       @client = stub('a client')
       @method = :a_sometimes_failing_method
@@ -127,25 +127,24 @@ class ParallizerTest < Test::Unit::TestCase
     end
     
     context "with success on last retry" do
-      setup do
-        # NOTE: added reverse order
-        @client.expects(@method).returns('success')
-        @retries.times { @client.expects(@method).raises('an error') }
+      before do
+        @client.should_receive(@method).exactly(@retries).times.and_raise('an error')
+        @client.should_receive(@method).and_return('success')
       end
       
-      should "return successful method response" do
-        assert_equal 'success', @execute_result
+      it "should return successful method response" do
+        @execute_result.should == 'success'
       end
     end
     
     
     context "with failures greater than retries" do
-      setup do
-        (@retries + 1).times { @client.expects(@method).raises('an error') }
+      before do
+        (@retries + 1).times { @client.should_receive(@method).and_raise('an error') }
       end
       
-      should "return successful method response" do
-        assert_equal 'an error', @execute_result.message
+      it "should return successful method response" do
+        @execute_result.message.should == 'an error'
       end
     end
   end

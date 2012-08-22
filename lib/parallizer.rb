@@ -1,4 +1,5 @@
 require 'work_queue'
+require 'parallizer/version'
 require 'parallizer/proxy'
 require 'parallizer/method_call_notifier'
 
