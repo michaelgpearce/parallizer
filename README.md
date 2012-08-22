@@ -161,5 +161,5 @@ http_service.get('www.google.com', '/?q=foo') # Will be called up to 4 times
 
 # Copyright
 
-Copyright (c) 2012 Michael Pearce, Bookrenter.com. See LICENSE.txt for further details.
+Copyright (c) 2012 Michael Pearce, Rafter.com. See LICENSE.txt for further details.
 
