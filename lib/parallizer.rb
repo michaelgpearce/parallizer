@@ -49,7 +49,20 @@ class Parallizer
   end
   
   def self.work_queue
-    @parallizer_work_queue ||= WorkQueue.new(WORK_QUEUE_SIZE)
+    @parallizer_work_queue ||= create_work_queue
+  end
+  
+  def self.create_work_queue
+    work_queue = WorkQueue.new(WORK_QUEUE_SIZE)
+    
+    # Force threads to be available - the work_queue gem seems to not always create the threads
+    WORK_QUEUE_SIZE.times do |i|
+      work_queue.enqueue_b do
+        1000.times { |i| i ** 1000 }
+      end
+    end
+    
+    work_queue
   end
   
   private
