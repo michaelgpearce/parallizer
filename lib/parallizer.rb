@@ -4,6 +4,8 @@ require 'parallizer/proxy'
 require 'parallizer/method_call_notifier'
 
 class Parallizer
+  WORK_QUEUE_SIZE = 10
+  
   attr_reader :calls, :call_infos, :client, :proxy, :options
   
   def initialize(client, options = {})
@@ -47,7 +49,7 @@ class Parallizer
   end
   
   def self.work_queue
-    @parallizer_work_queue ||= WorkQueue.new(10)
+    @parallizer_work_queue ||= WorkQueue.new(WORK_QUEUE_SIZE)
   end
   
   private
@@ -67,7 +69,7 @@ class Parallizer
           end
         ensure
           call_info[:complete?] = true
-          call_info[:condition_variable].signal
+          call_info[:condition_variable].broadcast
         end
       end
     end

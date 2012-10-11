@@ -148,4 +148,26 @@ describe Parallizer do
       end
     end
   end
+  
+  context "with multiple threads making calls to proxy before worker executed" do
+    it "should not deadlock" do # note, this was deadlocking when using CV#signal instead of CV#broadcast
+      # force our worker thread to run after two calls from other threads
+      Parallizer::WORK_QUEUE_SIZE.times do
+        Parallizer.work_queue.enqueue_b do
+          sleep(2)
+        end
+      end
+
+      # setup the proxy
+      parallizer = Parallizer.new(TestObject.new)
+      parallizer.add.another_method
+      proxy = parallizer.create_proxy
+
+      Thread.new do
+        proxy.another_method # call in another thread must happen before call in main thread for it to deadlock
+      end
+      sleep(1)
+      proxy.another_method
+    end
+  end
 end
