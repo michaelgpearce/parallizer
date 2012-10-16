@@ -62,6 +62,19 @@ describe Parallizer do
       end
     end
     
+    context "with call already added" do
+      before do
+        @method = :a_method
+        @parallizer.add_call(@method, 'arg')
+        @call_info = @parallizer.call_infos[[@method, 'arg']]
+        @call_info.should_not be_nil
+      end
+      
+      it "should ignore additional call" do
+        @call_info.object_id.should == @parallizer.call_infos[[@method, 'arg']].object_id
+      end
+    end
+    
     context "with string method name added" do
       before do
         @method = 'a_method'

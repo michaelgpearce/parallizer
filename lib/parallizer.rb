@@ -28,6 +28,7 @@ class Parallizer
     raise ArgumentError, "Cannot add calls after proxy has been generated" if @proxy
     
     method_name_and_args = [method_name.to_sym, *args]
+    return if call_infos[method_name_and_args]
     
     call_info = {
       :complete? => false,
