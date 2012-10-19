@@ -21,12 +21,6 @@ describe Parallizer do
     end
   end
   
-  describe "#work_queue" do
-    it "should have WORK_QUEUE_SIZE threads" do
-      Parallizer.work_queue.cur_threads.should == Parallizer::WORK_QUEUE_SIZE
-    end
-  end
-  
   describe "#add" do
     before do
       @client = TestObject.new
