@@ -162,25 +162,49 @@ describe Parallizer do
     end
   end
   
-  context "with multiple threads making calls to proxy before worker executed" do
-    it "should not deadlock" do # note, this was deadlocking when using CV#signal instead of CV#broadcast
-      # force our worker thread to run after two calls from other threads
-      Parallizer::WORK_QUEUE_SIZE.times do
-        Parallizer.work_queue.enqueue_b do
-          sleep(2)
-        end
-      end
-
-      # setup the proxy
-      parallizer = Parallizer.new(TestObject.new)
-      parallizer.add.another_method
+  context "with exceptions that are not standard errors" do
+    before do
+      @retries = 3
+      @client = stub('a client')
+      @method = :a_failing_method
+      (@retries + 1).times { @client.should_receive(@method).and_raise(Exception.new('an error')) }
+    end
+    
+    execute do
+      parallizer = Parallizer.new(@client, :retries => @retries)
+      parallizer.add_call(@method)
       proxy = parallizer.create_proxy
-
-      Thread.new do
-        proxy.another_method # call in another thread must happen before call in main thread for it to deadlock
+      begin
+        proxy.send(@method)
+      rescue Exception
+        $!
       end
-      sleep(1)
-      proxy.another_method
+    end
+    
+    it "should return successful method response" do
+      @execute_result.message.should == 'an error'
     end
   end
+
+  ## Unable to repro after switch to using ThreadPool instead of work_queue gem
+  # context "with multiple threads making calls to proxy before worker executed" do
+  #   it "should not deadlock" do # note, this was deadlocking when using CV#signal instead of CV#broadcast
+  #     Parallizer::WORK_QUEUE_SIZE.times do
+  #       Parallizer::ThreadPool.get do
+  #         sleep(2)
+  #       end
+  #     end
+  # 
+  #     # setup the proxy
+  #     parallizer = Parallizer.new(TestObject.new)
+  #     parallizer.add.another_method
+  #     proxy = parallizer.create_proxy
+  # 
+  #     Thread.new do
+  #       proxy.another_method # call in another thread must happen before call in main thread for it to deadlock
+  #     end
+  #     sleep(1)
+  #     proxy.another_method
+  #   end
+  # end
 end

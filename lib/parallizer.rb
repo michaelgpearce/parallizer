@@ -1,10 +1,10 @@
-require 'work_queue'
 require 'parallizer/version'
 require 'parallizer/proxy'
 require 'parallizer/method_call_notifier'
+require 'parallizer/thread_pool'
 
 class Parallizer
-  WORK_QUEUE_SIZE = 10
+  WORK_QUEUE_SIZE = Parallizer::ThreadPool::THEAD_POOL_SIZE
   
   attr_reader :calls, :call_infos, :client, :proxy, :options
   
@@ -49,18 +49,10 @@ class Parallizer
     Parallizer::Proxy.new(client, call_infos)
   end
   
-  def self.work_queue
-    @parallizer_work_queue ||= create_work_queue
-  end
-  
-  def self.create_work_queue
-    WorkQueue.new(WORK_QUEUE_SIZE)
-  end
-  
   private
   
   def enqueue_call_info(call_info, method_name_and_args)
-    Parallizer.work_queue.enqueue_b do
+    Parallizer::ThreadPool.get do
       call_info[:mutex].synchronize do
         begin
           (call_info[:retries] + 1).times do
@@ -75,6 +67,7 @@ class Parallizer
         ensure
           call_info[:complete?] = true
           call_info[:condition_variable].broadcast
+          Parallizer::ThreadPool.put(Thread.current)
         end
       end
     end
