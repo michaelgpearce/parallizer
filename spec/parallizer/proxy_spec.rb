@@ -29,57 +29,39 @@ describe Parallizer::Proxy do
           @call_key += [:a_method, "some value"]
         end
         
-        context "with not complete?" do
+        context "with an exception" do
           before do
-            @call_info[:complete?] = false
-            @call_info[:condition_variable].should_receive(:wait).with(@call_info[:mutex])
-            @call_info[:result] = 'this is a value'
+            @call_info[:exception] = StandardError.new('An Exception')
+            @call_info[:exception].set_backtrace(["/tmp/foo.rb:123:in `in a_worker_thread_method'"])
           end
           
-          it "should return the call_info result" do
-            @execute_result.should == @call_info[:result]
+          execute do
+            def a_calling_thread_method
+              call_infos = { @call_key => @call_info }
+              proxy = Parallizer::Proxy.new(@client, call_infos)
+              proxy.send(*@call_key) rescue $!
+            end
+            a_calling_thread_method
+          end
+
+          it "should raise exception" do
+            @execute_result.class.should == @call_info[:exception].class
+            @execute_result.message.should == @call_info[:exception].message
+          end
+          
+          it "should append backtrace of current call" do
+            @execute_result.backtrace.join.should match /a_worker_thread_method/
+            @execute_result.backtrace.join.should match /a_calling_thread_method/
           end
         end
         
-        context "with complete? call info" do
+        context "with a result" do
           before do
-            @call_info[:complete?] = true
+            @call_info[:result] = "a result"
           end
           
-          context "with an exception" do
-            before do
-              @call_info[:exception] = StandardError.new('An Exception')
-              @call_info[:exception].set_backtrace(["/tmp/foo.rb:123:in `in a_worker_thread_method'"])
-            end
-            
-            execute do
-              def a_calling_thread_method
-                call_infos = { @call_key => @call_info }
-                proxy = Parallizer::Proxy.new(@client, call_infos)
-                proxy.send(*@call_key) rescue $!
-              end
-              a_calling_thread_method
-            end
-
-            it "should raise exception" do
-              @execute_result.class.should == @call_info[:exception].class
-              @execute_result.message.should == @call_info[:exception].message
-            end
-            
-            it "should append backtrace of current call" do
-              @execute_result.backtrace.join.should match /a_worker_thread_method/
-              @execute_result.backtrace.join.should match /a_calling_thread_method/
-            end
-          end
-          
-          context "with a result" do
-            before do
-              @call_info[:result] = "a result"
-            end
-            
-            it "should return result" do
-              @execute_result.should == @call_info[:result]
-            end
+          it "should return result" do
+            @execute_result.should == @call_info[:result]
           end
         end
       end

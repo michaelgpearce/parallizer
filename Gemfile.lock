@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    parallizer (0.2.3)
-      work_queue (~> 2.5.2)
+    parallizer (0.3.0)
+      work_queue
 
 GEM
   remote: http://rubygems.org/
