@@ -31,7 +31,6 @@ class Parallizer
     return if call_infos[method_name_and_args]
     
     call_info = {
-      :complete? => false,
       :result => nil,
       :exception => nil,
       :retries => options[:retries]
