@@ -4,7 +4,25 @@ require 'parallizer/proxy'
 require 'parallizer/method_call_notifier'
 
 class Parallizer
-  WORK_QUEUE_SIZE = 10
+  DEFAULT_WORK_QUEUE_SIZE = 10
+  
+  class << self
+    def work_queue_size
+      work_queue.max_threads
+    end
+    
+    def work_queue_size=(size)
+      work_queue = Thread.current[:parallizer_work_queue]
+      if work_queue.nil? || work_queue.max_threads != size
+        Thread.current[:parallizer_work_queue] = WorkQueue.new(size)
+      end
+    end
+
+    def work_queue
+      # TODO: share the work queue among calling threads
+      Thread.current[:parallizer_work_queue] ||= WorkQueue.new(DEFAULT_WORK_QUEUE_SIZE)
+    end
+  end
   
   attr_reader :calls, :call_infos, :client, :proxy, :options
   
@@ -47,11 +65,6 @@ class Parallizer
   end
   
   private
-  
-  def self.work_queue
-    # TODO: share the work queue among calling threads
-    Thread.current[:parallizer_work_queue] ||= WorkQueue.new(WORK_QUEUE_SIZE)
-  end
   
   def execute
     call_infos.each do |method_name_and_args, call_info|

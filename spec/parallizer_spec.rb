@@ -185,6 +185,18 @@ describe Parallizer do
       @execute_result.message.should == 'an error'
     end
   end
+  
+  describe "#work_queue_size" do
+    it "should be the default size when not specified" do
+      Parallizer.work_queue_size.should == Parallizer::DEFAULT_WORK_QUEUE_SIZE
+    end
+    
+    it "should have max threads equal to specified size" do
+      size = rand(2..5)
+      Parallizer.work_queue_size = size
+      Parallizer.work_queue.max_threads.should == size
+    end
+  end
 
   ## Unable to repro after switch to using ThreadPool instead of work_queue gem
   # context "with multiple threads making calls to proxy before worker executed" do
