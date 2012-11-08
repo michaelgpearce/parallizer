@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    parallizer (0.3.0)
+    parallizer (0.3.1)
       work_queue
 
 GEM
