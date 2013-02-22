@@ -1,20 +1,19 @@
 require 'spec_helper'
 
 describe Parallizer::Proxy do
-  DEFAULT_RETURN_VALUE = "return value"
+  CLIENT_RETURN_VALUE = "client return value"
   
-  class TestObject
+  class ClientTestObject
     def a_method(arg)
-      DEFAULT_RETURN_VALUE
+      CLIENT_RETURN_VALUE
     end
   end
   
   describe "#method_missing" do
     before do
-      @client = TestObject.new
+      @client = ClientTestObject.new
       @call_key = []
-      @call_info = {:result => nil, :exception => nil, :complete? => true,
-        :condition_variable => ConditionVariable.new, :mutex => Mutex.new }
+      @call_info = {:result => nil, :exception => nil }
     end
     
     execute do
@@ -43,7 +42,7 @@ describe Parallizer::Proxy do
             end
             a_calling_thread_method
           end
-
+  
           it "should raise exception" do
             @execute_result.class.should == @call_info[:exception].class
             @execute_result.message.should == @call_info[:exception].message
@@ -73,7 +72,7 @@ describe Parallizer::Proxy do
         end
         
         it "should return value from client object" do
-          @execute_result.should == DEFAULT_RETURN_VALUE
+          @execute_result.should == CLIENT_RETURN_VALUE
         end
       end
     end
@@ -92,10 +91,9 @@ describe Parallizer::Proxy do
   
   describe "#respond_to?" do
     before do
-      client = TestObject.new
+      client = ClientTestObject.new
       call_key = [:a_method, 'valid argument']
-      call_info = {:result => nil, :exception => nil, :complete? => true,
-        :condition_variable => ConditionVariable.new, :mutex => Mutex.new }
+      call_info = {:result => nil, :exception => nil }
       @proxy = Parallizer::Proxy.new(client, { call_key => call_info })
     end
     
