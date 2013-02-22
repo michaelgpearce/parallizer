@@ -191,10 +191,11 @@ describe Parallizer do
       Parallizer.work_queue_size.should == Parallizer::DEFAULT_WORK_QUEUE_SIZE
     end
     
-    it "should have max threads equal to specified size" do
+    it "should have max threads equal to specified size after requesting the work queue" do
       size = rand(2..5)
       Parallizer.work_queue_size = size
-      Parallizer.work_queue.max_threads.should == size
+      Parallizer.work_queue
+      Thread.current[:parallizer_work_queue_size].should == size
     end
   end
 
