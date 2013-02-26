@@ -1,5 +1,3 @@
-require 'celluloid'
-
 class Parallizer
   class Worker
     include Celluloid

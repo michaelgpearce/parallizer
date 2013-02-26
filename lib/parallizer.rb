@@ -1,3 +1,5 @@
+require 'celluloid'
+Celluloid.logger = nil
 require 'parallizer/version'
 require 'parallizer/proxy'
 require 'parallizer/worker'
