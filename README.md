@@ -122,8 +122,8 @@ require 'net/http'
 require 'parallizer'
 
 parallizer = Parallizer.new(Net::HTTP)
-parallizer.add.get('www.google.com', '/?q=foo')
-parallizer.add.get('www.google.com', '/?q=bar')
+parallizer.add.get('www.google.com', '/search?q=foo')
+parallizer.add.get('www.google.com', '/search?q=bar')
 http_service = parallizer.create_proxy
 ```
 
@@ -146,10 +146,30 @@ require 'net/http'
 require 'parallizer'
 
 parallizer = Parallizer.new(Net::HTTP, :retries => 3)
-parallizer.add.get('www.google.com', '/?q=foo')
+parallizer.add.get('www.google.com', '/search?q=foo')
 http_service = parallizer.create_proxy
 
-http_service.get('www.google.com', '/?q=foo') # Will be called up to 4 times
+http_service.get('www.google.com', '/search?q=foo') # Will be called up to 4 times
+```
+
+
+### Retrieve all results
+
+You can also execute all added methods in parallel and get all the results.
+
+```ruby
+require 'net/http'
+require 'parallizer'
+
+parallizer = Parallizer.new(Net::HTTP)
+parallizer.add.get('www.google.com', '/search?q=foo')
+parallizer.add.get('www.google.com', '/search?q=bar')
+
+call_results = parallizer.all_call_results
+# {
+#   [:get, 'www.google.com', '/search?q=foo'] => ...,
+#   [:get, 'www.google.com', '/search?q=foo'] => ...
+# }
 ```
 
 

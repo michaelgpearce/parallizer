@@ -69,6 +69,16 @@ class Parallizer
     ::Parallizer::Proxy.new(client, call_infos)
   end
 
+  def all_call_results
+    proxy = create_proxy
+
+    call_infos.keys.inject({}) do |result, method_name_and_args|
+      result[method_name_and_args] = proxy.send(*method_name_and_args)
+
+      result
+    end
+  end
+
   private
 
   def execute

@@ -3,21 +3,30 @@ require 'spec_helper'
 describe Parallizer do
   class TestObject
     def a_method(arg)
-      Thread.current
+      @a_method ||= {}
+      @a_method[arg] ||= rand(1..100)
     end
     
     def another_method
+      @another_method ||= rand(1..100)
+    end
+
+    def current_thread
+      Thread.current
+    end
+
+    def another_current_thread
       Thread.current
     end
   end
   
   class AnotherTestObject
     def a_method
-      Thread.current
+      @a_method ||= rand(1..100)
     end
     
     def another_method
-      Thread.current
+      @another_method ||= rand(1..100)
     end
   end
   
@@ -90,6 +99,31 @@ describe Parallizer do
     end
   end
   
+  describe "#all_call_results" do
+    before do
+      @client = TestObject.new
+      @parallizer = Parallizer.new(@client)
+    end
+    
+    execute do
+      @results = @parallizer.all_call_results
+    end
+    
+    context "gives all results" do
+      before do
+        @parallizer.add_call(:a_method, 'arg1')
+        @parallizer.add_call(:a_method, 'arg2')
+        @parallizer.add_call(:another_method)
+      end
+      
+      it "gives results in order executed" do
+        @results[[:a_method, 'arg1']].should == @client.a_method('arg1')
+        @results[[:a_method, 'arg2']].should == @client.a_method('arg2')
+        @results[[:another_method]].should == @client.another_method
+      end
+    end
+  end
+
   describe "#create_proxy" do
     before do
       @client = TestObject.new
@@ -102,15 +136,15 @@ describe Parallizer do
     
     context "with existing method on client" do
       before do
-        @parallizer.add_call(:a_method, 'arg')
+        @parallizer.add_call(:current_thread)
       end
       
       it "should execute method with add_call in a separate thread" do
-        @proxy.a_method('arg').should_not == Thread.current
+        @proxy.current_thread.should_not == Thread.current
       end
       
       it "should execute method not added with add_call in current thread" do
-        @proxy.another_method.should == Thread.current
+        @proxy.another_current_thread.should == Thread.current
       end
     end
     
