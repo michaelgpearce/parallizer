@@ -4,11 +4,11 @@ describe Parallizer do
   class TestObject
     def a_method(arg)
       @a_method ||= {}
-      @a_method[arg] ||= rand(1..100)
+      @a_method[arg] ||= rand(100)
     end
     
     def another_method
-      @another_method ||= rand(1..100)
+      @another_method ||= rand(100)
     end
 
     def current_thread
@@ -22,11 +22,11 @@ describe Parallizer do
   
   class AnotherTestObject
     def a_method
-      @a_method ||= rand(1..100)
+      @a_method ||= rand(100)
     end
     
     def another_method
-      @another_method ||= rand(1..100)
+      @another_method ||= rand(100)
     end
   end
   
@@ -226,7 +226,7 @@ describe Parallizer do
     end
     
     it "should have max threads equal to specified size after requesting the work queue" do
-      size = rand(2..5)
+      size = 2 + rand(3)
       Parallizer.work_queue_size = size
       Parallizer.work_queue
       Thread.current[:parallizer_work_queue_size].should == size
