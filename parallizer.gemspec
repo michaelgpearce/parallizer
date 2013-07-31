@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/michaelgpearce/parallizer"
   s.summary     = %q{Execute your service layer in parallel}
   s.description = %q{Execute your service layer in parallel.}
+  s.license     = "MIT"
 
   s.rubyforge_project = "parallizer"
 
