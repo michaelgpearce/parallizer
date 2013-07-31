@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency 'celluloid', '~> 0.11.0'
-  s.add_dependency 'hanging_methods', '~> 0.0.1'
+  s.add_dependency 'hanging_methods', '~> 0.0.2'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 2.9.0'
   s.add_development_dependency 'always_execute', '~> 0.1.1'
