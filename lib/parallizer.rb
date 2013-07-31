@@ -1,12 +1,15 @@
 require 'celluloid'
 Celluloid.logger = nil
+require 'hanging_methods'
 require 'parallizer/version'
 require 'parallizer/proxy'
 require 'parallizer/worker'
-require 'parallizer/method_call_notifier'
 
 class Parallizer
+  include HangingMethods
   DEFAULT_WORK_QUEUE_SIZE = 10
+  
+  add_hanging_method :add, :after_invocation => :add_invoked
   
   class << self
     def work_queue_size
@@ -37,28 +40,12 @@ class Parallizer
     @call_infos = {}
   end
 
-  def add
-    ::Parallizer::MethodCallNotifier.new do |*args|
-      add_call(*args)
-    end
-  end
-
   def calls
     @call_infos.keys
   end
 
   def add_call(method_name, *args)
-    raise ArgumentError, "Cannot add calls after proxy has been generated" if @proxy
-
-    method_name_and_args = [method_name.to_sym, *args]
-    return if call_infos[method_name_and_args]
-
-    call_info = {
-      :future => ::Parallizer::work_queue.future(:run, @client, method_name, args, options),
-      :result => nil,
-      :exception => nil
-    }
-    call_infos[method_name_and_args] = call_info
+    add.send(method_name, *args)
   end
 
   def create_proxy
@@ -80,12 +67,23 @@ class Parallizer
   end
 
   private
+  
+  def add_invoked(method_name_and_args)
+    raise ArgumentError, "Cannot add calls after proxy has been generated" if @proxy
+  
+    return if call_infos[method_name_and_args]
+  
+    call_info = {
+      :future => ::Parallizer::work_queue.future(:run, @client, method_name_and_args.first, method_name_and_args[1..-1], options),
+      :result => nil,
+      :exception => nil
+    }
+    call_infos[method_name_and_args] = call_info
+  end
 
   def execute
     call_infos.each do |method_name_and_args, call_info|
       call_info.merge!(call_info[:future].value)
     end
-
-    ::Parallizer::Proxy.new(client, call_infos)
   end
 end

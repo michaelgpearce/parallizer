@@ -47,6 +47,7 @@ describe Parallizer do
   
   describe "#add_call" do
     before do
+      @method = :a_method
       @client = TestObject.new
       @parallizer = Parallizer.new(@client)
     end
@@ -67,7 +68,6 @@ describe Parallizer do
     
     context "with call already added" do
       before do
-        @method = :a_method
         @parallizer.add_call(@method, 'arg')
         @call_info = @parallizer.call_infos[[@method, 'arg']]
         @call_info.should_not be_nil

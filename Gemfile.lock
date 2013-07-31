@@ -3,6 +3,7 @@ PATH
   specs:
     parallizer (0.4.2)
       celluloid (~> 0.11.0)
+      hanging_methods (~> 0.0.1)
 
 GEM
   remote: http://rubygems.org/
@@ -11,7 +12,8 @@ GEM
     celluloid (0.11.1)
       timers (>= 1.0.0)
     diff-lcs (1.1.3)
-    rake (10.0.3)
+    hanging_methods (0.0.1)
+    rake (10.1.0)
     rspec (2.9.0)
       rspec-core (~> 2.9.0)
       rspec-expectations (~> 2.9.0)
