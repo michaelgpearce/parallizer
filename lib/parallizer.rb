@@ -30,6 +30,10 @@ class Parallizer
       
       queue
     end
+
+    def in_parallizer_thread?
+      Thread.current[:parallizer_thread] == true
+    end
   end
   
   attr_reader :calls, :call_infos, :client, :proxy, :options

@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    parallizer (0.4.3)
+    parallizer (0.4.5)
       celluloid (~> 0.11.0)
-      hanging_methods (~> 0.0.1)
+      hanging_methods (~> 0.0.2)
 
 GEM
   remote: http://rubygems.org/

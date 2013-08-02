@@ -18,6 +18,10 @@ describe Parallizer do
     def another_current_thread
       Thread.current
     end
+
+    def in_parallizer_thread?
+      Parallizer.in_parallizer_thread?
+    end
   end
   
   class AnotherTestObject
@@ -30,6 +34,28 @@ describe Parallizer do
     end
   end
   
+  describe "#in_parallizer_thread?" do
+    before do
+      @client = TestObject.new
+      @parallizer = Parallizer.new(@client)
+    end
+
+    subject do
+      parallizer = Parallizer.new(@client)
+      parallizer.add.in_parallizer_thread?
+      proxy = parallizer.create_proxy
+      proxy.in_parallizer_thread?
+    end
+
+    it "is not in_parallizer_thread on the client" do
+      @client.in_parallizer_thread?.should be_false
+    end
+
+    it "is in_parallizer_thread after parallizing" do
+      subject.should be_true
+    end
+  end
+
   describe "#add" do
     before do
       @client = TestObject.new
