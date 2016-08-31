@@ -1,4 +1,4 @@
-require 'celluloid'
+require 'celluloid/current'
 Celluloid.logger = nil
 require 'hanging_methods'
 require 'parallizer/version'

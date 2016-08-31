@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_dependency 'celluloid', '>= 0.0.11'
+  s.add_dependency 'celluloid', '>= 0.17.3'
   s.add_dependency 'hanging_methods', '>= 0.0.2'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 2.9.0'
