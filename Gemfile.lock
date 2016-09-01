@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    parallizer (0.4.8)
+    parallizer (0.5.0)
       celluloid (>= 0.17.3)
       hanging_methods (>= 0.0.2)
 
